@@ -20,9 +20,18 @@ function App() {
 		socketRef.current.emit("call", { treatmentId });
 	}, [treatmentId]);
 
+	const emitCloseCall = useCallback(() => {
+		console.log("emited close call");
+		socketRef.current.emit("close-call", { treatmentId });
+	}, [treatmentId]);
+
 	useEffect(() => {
 		console.log("new conn");
 		const skt = io("http://localhost:3000", { path: "/ws" });
+		skt.on("call-accepted", (data) => {
+			console.log("received call accepted", data);
+			setMsg("call accepted");
+		});
 		setSocket(skt);
 		socketRef.current = skt;
 	}, []);
@@ -51,7 +60,8 @@ function App() {
 				<legend>Emit Events</legend>
 				<button onClick={emitJoinTreatmentRoom}>Join Treatment Room</button>
 				<button onClick={emitCall}>Call</button>
-				<button>Finish Treatment</button>
+				<button onClick={emitCloseCall}>Close Call</button>
+				<button disabled>Finish Treatment</button>
 			</fieldset>
 			<div>
 				<span>Status: {msg}</span>
